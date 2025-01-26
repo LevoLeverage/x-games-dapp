@@ -1,12 +1,26 @@
+/* Use flexbox to layout elements */
+.container {
+  display: flex;
+  flex-direction: row; /* Arrange items in a row */
+  justify-content: space-around; /* Distribute space around items */
+  align-items: center; /* Align items vertically in the center */
+  padding: 20px;
+}
+
+.item {
+  flex: 1; /* Allow items to grow and fill the container */
+  margin: 10px;
+}
+
 body {
   font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
+  background-color: #00aaad;
   margin: 0;
   padding: 0;
 }
 
 h2, h3 {
-  color: #333;
+  color: #e8e8e8;
 }
 
 button {

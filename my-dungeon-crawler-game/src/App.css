@@ -1,3 +1,17 @@
+/* Use flexbox to layout elements */
+.container {
+  display: flex;
+  flex-direction: row; /* Arrange items in a row */
+  justify-content: space-around; /* Distribute space around items */
+  align-items: center; /* Align items vertically in the center */
+  padding: 20px;
+}
+
+.item {
+  flex: 1; /* Allow items to grow and fill the container */
+  margin: 10px;
+}
+
 .App {
   text-align: center;
 }
@@ -22,6 +36,9 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+  padding: 20px; /* Add padding inside the header */
+  margin-bottom: 20px; /* Add margin below the header */
+  border-radius: 10px; /* Add border radius to the header */
 }
 
 .App-link {
@@ -35,4 +52,43 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Style the GameQuestion component */
+.GameQuestion {
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px;
+}
+
+.GameQuestion h2 {
+  margin-bottom: 20px;
+}
+
+.GameQuestion input {
+  margin: 10px;
+  padding: 5px;
+}
+
+.GameQuestion button {
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #fb7861;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+.GameQuestion button:hover {
+  background-color: #e05a4f;
+}
+
+/* Style for the App title */
+.App-title {
+  font-size: 2.5rem;
+  color: #61dafb;
+  margin: 20px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
