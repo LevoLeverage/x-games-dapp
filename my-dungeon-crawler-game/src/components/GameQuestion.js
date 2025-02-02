@@ -1,13 +1,10 @@
-import { ethers } from "ethers";
 import React, { useState } from "react";
+import { ethers } from "ethers";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFortAwesome } from '@fortawesome/free-brands-svg-icons';
 
-const GameQuestion = ({ onSetQuestion, onEndRound, onBuyTickets, contractAddress, contractABI }) => {
+const GameQuestion = ({ onBuyTickets, contractAddress, contractABI }) => {
     const [ticketCounts, setTicketCounts] = useState([0, 0, 0, 0, 0]); // For 5 answers
-    const [question, setQuestion] = useState('');
-    const [options, setOptions] = useState(['', '', '', '', '']);
-    const [burnPercentage, setBurnPercentage] = useState(900);
-    const [feePercentage, setFeePercentage] = useState(100);
-    const [prizePercentage, setPrizePercentage] = useState(8000);
 
     // Setup ethers.js provider and contract instance
     const provider = new ethers.providers.Web3Provider(window.ethereum); // Assuming MetaMask is used
@@ -37,41 +34,18 @@ const GameQuestion = ({ onSetQuestion, onEndRound, onBuyTickets, contractAddress
         }
     };
 
-    const handleSetQuestion = async () => {
-        try {
-            if (question && options.every(option => option)) {
-                const tx = await contract.setQuestion(question, options);
-                await tx.wait();
-                console.log("Question set successfully:", tx);
-                onSetQuestion(question, options);
-            } else {
-                alert("Please enter a valid question and options.");
-            }
-        } catch (error) {
-            console.error("Error setting question:", error);
-        }
-    };
 
-    const handleEndRound = async () => {
-        try {
-            if (burnPercentage + feePercentage + prizePercentage <= 10000) {
-                const tx = await contract.endRound(burnPercentage, feePercentage, prizePercentage);
-                await tx.wait();
-                console.log("Round ended successfully:", tx);
-                onEndRound(burnPercentage, feePercentage, prizePercentage);
-            } else {
-                alert("Total percentages must not exceed 100%.");
-            }
-        } catch (error) {
-            console.error("Error ending round:", error);
-        }
-    };
 
     return (
-        <div className="GameQuestion" style={{ textAlign: "center", marginTop: "20px" }}>
-            <h2>What is the capital of France?</h2>
+        <div className="GameQuestion" style={{ textAlign: "center"}}>
+            <FontAwesomeIcon icon={faFortAwesome}
+                            style={{ 
+                                color: "#ff4d6d", 
+                                fontSize: "60px", 
+                            }}  />
+            <h2>We are at the entrance of the dungeon, but a group of goblins is blocking the way. What should we do?</h2>
             <div>
-                {["Paris", "Rome", "Berlin", "Madrid", "Lisbon"].map((answer, index) => (
+                {["1. Attack with the sword.", "2. Attack with a spell.", "3. Hide and wait for them to leave.", "4. Bride them.", "5. Sneak past them."].map((answer, index) => (
                     <div key={index} style={{ margin: "10px" }}>
                         <span>{answer}</span>
                         <input
@@ -90,52 +64,8 @@ const GameQuestion = ({ onSetQuestion, onEndRound, onBuyTickets, contractAddress
                     </div>
                 ))}
             </div>
-
-            <h2>Set Initial Question</h2>
-            <input
-                type="text"
-                placeholder="Question"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-            />
-            {options.map((option, index) => (
-                <input
-                    key={index}
-                    type="text"
-                    placeholder={`Option ${index + 1}`}
-                    value={option}
-                    onChange={(e) => {
-                        const newOptions = [...options];
-                        newOptions[index] = e.target.value;
-                        setOptions(newOptions);
-                    }}
-                />
-            ))}
-            <button onClick={handleSetQuestion}>Set Question</button>
-
-            <h2>End Round</h2>
-            <input
-                type="number"
-                placeholder="Burn Percentage"
-                value={burnPercentage}
-                onChange={(e) => setBurnPercentage(Number(e.target.value))}
-            />
-            <input
-                type="number"
-                placeholder="Fee Percentage"
-                value={feePercentage}
-                onChange={(e) => setFeePercentage(Number(e.target.value))}
-            />
-            <input
-                type="number"
-                placeholder="Prize Percentage"
-                value={prizePercentage}
-                onChange={(e) => setPrizePercentage(Number(e.target.value))}
-            />
-            <button onClick={handleEndRound}>End Round</button>
         </div>
-    );
-};
-
+    );     
+}; 
 export default GameQuestion;
 

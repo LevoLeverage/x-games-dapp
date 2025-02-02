@@ -1,15 +1,10 @@
-/* Use flexbox to layout elements */
-.container {
-  display: flex;
-  flex-direction: row; /* Arrange items in a row */
-  justify-content: space-around; /* Distribute space around items */
-  align-items: center; /* Align items vertically in the center */
-  padding: 20px;
-}
-
-.item {
-  flex: 1; /* Allow items to grow and fill the container */
-  margin: 10px;
+/* General Styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
 }
 
 .App {
@@ -28,7 +23,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -36,9 +31,10 @@
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-  padding: 20px; /* Add padding inside the header */
-  margin-bottom: 20px; /* Add margin below the header */
-  border-radius: 10px; /* Add border radius to the header */
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .App-link {
@@ -54,12 +50,94 @@
   }
 }
 
+/* Style for the App title */
+.App-title {
+  font-size: 2.5rem;
+  color: #61dafb;
+  margin: 20px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Flexbox container for header */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.header-container .title-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.header-container .App-title {
+  margin: 0;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 3rem;
+  color: #ff4b2b;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.header-container .ConnectWallet {
+  margin-left: auto;
+}
+
+.connect-wallet-button {
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #ff4b2b;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.connect-wallet-button:hover {
+  background-color: #b05115;
+}
+
+/* Flexbox container for main content */
+.main-container {
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  margin: 20px;
+  border: 2px solid #917430;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+}
+
+.CountdownTimer {
+  flex: 1;
+  text-align: left;
+  background-color: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+}
+
+.TicketCounter {
+  flex: 1;
+  text-align: center;
+  padding: 20px;
+}
+
+.TicketCounter h3 {
+  text-align: center;
+}
+
 /* Style the GameQuestion component */
 .GameQuestion {
-  background-color: #f0f0f0;
   padding: 20px;
-  border-radius: 10px;
-  margin: 20px;
+  border-radius: 2px;
+  margin: 0 50px;
+  flex: 3;
+  text-align: center;
 }
 
 .GameQuestion h2 {
@@ -74,7 +152,7 @@
 .GameQuestion button {
   margin: 10px;
   padding: 10px 20px;
-  background-color: #fb7861;
+  background-color: #E6A100;
   border: none;
   border-radius: 5px;
   color: white;
@@ -83,12 +161,4 @@
 
 .GameQuestion button:hover {
   background-color: #e05a4f;
-}
-
-/* Style for the App title */
-.App-title {
-  font-size: 2.5rem;
-  color: #61dafb;
-  margin: 20px 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }

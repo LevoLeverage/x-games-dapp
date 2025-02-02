@@ -5,7 +5,7 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     console.log("Setting question with the account:", deployer.address);
 
-    const contractAddress = "0x487ca017681aD1138bA0c412FEdD2FeC69412779"; // Replace with your deployed contract address
+    const contractAddress = "0x9218Da22b1F3F4B3Def0A7cD3A954881BC67c823"; // Replace with your deployed contract address
     const contractABI = require("../src/DungeonCrawler.json").abi;
     const contract = new ethers.Contract(contractAddress, contractABI, deployer);
 

@@ -64,30 +64,11 @@ contract DungeonCrawler is Ownable {
         emit QuestionSet(_text, _options);
     } 
 
-/*function buyTickets(uint256 answerIndex, uint256 numTickets) public payable onlyIfQuestionSet {
-    require(answerIndex < currentQuestion.options.length, "Invalid answer index.");
-    require(numTickets > 0, "Must buy at least one ticket.");
-    require(msg.value == ticketPrice * numTickets, "Incorrect ETH value sent.");
-
-    // Initialize the user's tickets array if it doesn't exist
-    if (tickets[msg.sender][round].length == 0) {
-        tickets[msg.sender][round] = new uint256[](currentQuestion.options.length);
+    function getTicketCount(address user, uint256 answerIndex) public view returns (uint256) {
+        return tickets[user][round][answerIndex];
     }
 
-    // Update user tickets
-    tickets[msg.sender][round][answerIndex] += numTickets;
-    totalTicketsPerAnswer[round][answerIndex] += numTickets;
-
-    // Add participant to the list if not already present
-    if (!isParticipant[msg.sender]) {
-        isParticipant[msg.sender] = true;
-        allTicketHolders.push(msg.sender);
-    }
-
-    emit TicketPurchased(msg.sender, answerIndex, numTickets);
-} */
-
-function buyTickets(uint256 answerIndex, uint256 numTickets) public payable onlyIfQuestionSet {
+    function buyTickets(uint256 answerIndex, uint256 numTickets) public payable onlyIfQuestionSet {
     require(answerIndex < currentQuestion.options.length, "Invalid answer index.");
     require(numTickets > 0, "Must buy at least one ticket.");
     require(msg.value == ticketPrice * numTickets, "Incorrect ETH value sent.");
@@ -109,7 +90,7 @@ function buyTickets(uint256 answerIndex, uint256 numTickets) public payable only
     }
 
     emit TicketPurchased(msg.sender, answerIndex, numTickets);
-}
+    }
 
     function endRound(
         uint256 _burnPercentage,

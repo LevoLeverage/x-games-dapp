@@ -22,7 +22,7 @@ const ConnectWallet = ({ onWalletConnected }) => {
             {address ? (
                 <p>Connected: {address.slice(0, 6)}...{address.slice(-4)}</p>
             ) : (
-                <button onClick={connectWallet}>Connect Wallet</button>
+                <button className="connect-wallet-button" onClick={connectWallet}>Connect Wallet</button>
             )}
         </div>
     );

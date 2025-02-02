@@ -1,0 +1,202 @@
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .App {
+    text-align: center;
+  }
+  
+  /* Neon headers */
+  h1, h2, h3 {
+    color: #ff4d6d;
+    text-shadow: 0 0 8px #ff4d6d, 0 0 16px #ff4d6d;
+  }
+  
+  /* Glowing buttons */
+  button {
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    border: none;
+    border-radius: 5px;
+    color:#ffffff;
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 8px #ff4b2b;
+  }
+  
+  button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px #ff4b2b;
+  }
+  
+  /* Flexbox container for header */
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: 20px;
+    margin-right: 20px;
+    background: rgba(0, 0, 0, 0);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+    border-bottom: 2px #ff4b2b;
+  }
+  
+  .header-container .App-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3rem;
+    color: #ff4b2b;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin: 0;
+  }
+  
+/* Flexbox container for main content */
+.main-container {
+    background-color: rgba(255, 255, 255, 0);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 0px 20px 20px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+  
+  }
+
+  /* Countdown Timer */
+  .CountdownTimer {
+    background: #ffffff00;
+    border: 2px solid #00ffff;
+    border-radius: 10px;
+    padding: 15px;
+    color: #00ffff;
+    text-shadow: 0 0 8px #00ffff;
+    margin: 10px;
+    max-width: 300px;
+    display: flex; /* Add Flexbox */
+    flex-direction: column; /* Arrange children in a column */
+    align-items: center; /* Center children horizontally */
+    justify-content: space-between; /* Distribute space between children */
+    flex: 1;
+  }
+
+  .CountdownTimer h3 {
+    color: #E6A100;
+  }
+
+  .CountdownTimer span {
+    color: #00ffff;
+    font-size: 25px;
+  }
+
+  .CountdownTimer p {
+    color: white;
+  }
+  .spacing-ct {
+    margin: 20px 0; /* Adjust the margin as needed */
+  }
+  /* GameQuestion component */
+  .GameQuestion {
+    background: #000000b3;
+    border: 2px solid #ff4d6d;
+    padding: 15px 40px 20px 40px;
+    border-radius: 10px;
+    margin: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-shadow: 0 0 8px #00ffff;
+    display: flex; /* Add Flexbox */
+    flex-direction: column; /* Arrange children in a column */
+    align-items: center; /* Center children horizontally */
+    justify-content: space-between; /* Distribute space between children */
+    flex: 3;
+  }
+  
+  .GameQuestion div:hover {
+    transform: scale(1.05);
+  }
+
+  .GameQuestion div {
+    color: #00ffff;
+  }
+  
+  .GameQuestion input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .GameQuestion button {
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #E6A100;
+    border: none;
+    border-radius: 5px;
+    color:#ffffff;
+    cursor: pointer;
+  }
+  
+  .GameQuestion button:hover {
+    background-color: #e05a4f;
+  }
+  
+  /* TicketCounter */
+  .TicketCounter {
+    background: #ffffff00;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 10px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    border: 2px solid #00ffff;
+    display: flex; /* Add Flexbox */
+    flex-direction: column; /* Arrange children in a column */
+    align-items: center; /* Center children horizontally */
+    justify-content: space-between; /* Distribute space between children */
+    flex: 1;
+  }
+  
+  .TicketCounter h3 {
+    text-align: center;
+    color: #E6A100;
+  }
+
+  .TicketCounter p {
+    color: #ffc53f;
+    text-shadow: 0 0 14px #ffc53f;
+    font-size: 23px;
+
+  }
+  
+  .TicketCounter ul {
+    text-align: center;
+    color: #ffffff;
+    list-style-type: none; /* Remove the dots */
+    padding: 0; /* Remove default padding */
+    text-shadow: 0 0 8px #00ffff;
+
+  }
+  /* Footer */
+  .footer {
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+    border-top: 2px solid #ff4b2b;
+  }
+
+body {
+    font-family: 'Orbitron', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: 
+        radial-gradient(circle at 50% 20%, rgba(255, 77, 109, 0.8), transparent 70%), /* Bright pink at the top */
+        radial-gradient(circle at 50% 50%, #00ffff80, transparent 80%), /* Cyan glow in the middle */
+        linear-gradient(to bottom, #431b59b3, rgba(44, 30, 67, 0.9), #1e1e2f); /* Dark at the bottom */
+    background-size: 100% 100%; /* Full viewport */
+    color: #fff; /* Keep text white for contrast */
+}
+
+.header-container .App-logo {
+    width: 20%;
+}
+
