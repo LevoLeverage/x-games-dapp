@@ -28,11 +28,11 @@ const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress
                     // Add network configuration to provider
                     const web3Provider = new ethers.providers.Web3Provider(window.ethereum, BASE_SEPOLIA_CONFIG);
                     
-                    // Update resolveName so that valid addresses pass through
-                   // web3Provider.resolveName = async (name) => {
-                   //     if (ethers.utils.isAddress(name)) return name;
-                 //       throw new Error("ENS is not supported on this network");
-                //    };
+                    // (Optional) Remove or adjust resolveName override if not needed.
+                    // web3Provider.resolveName = async (name) => {
+                    //     if (ethers.utils.isAddress(name)) return name;
+                    //     throw new Error("ENS is not supported on this network");
+                    // };
 
                     // Check network
                     const network = await web3Provider.getNetwork();
@@ -123,31 +123,44 @@ const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress
             }
 
             if (ticketCounts[answerIndex] > 0) {
-                const ticketPrice = ethers.utils.parseEther("0.00001"); // Replace with the actual ticket price
-                const tokenBalance = await tokenContract.balanceOf(await signer.getAddress());
-
-                if (tokenBalance.gte(ticketCounts[answerIndex])) {
-                    // Use FTT for the entire purchase
-                    await tokenContract.approve(contractAddress, ticketCounts[answerIndex]);
-                    const tx = await contract.buyTickets(answerIndex, ticketCounts[answerIndex]);
-                    await tx.wait(); // Wait for the transaction to be mined
-                    console.log("Tickets bought successfully with FTT:", tx);
+                // --- New Split-Payment Calculation ---
+                const tokenCostPerTicket = ethers.utils.parseUnits("1", 18); // 1 FTT per ticket (with 18 decimals)
+                const ticketPrice = ethers.utils.parseEther("0.00001"); // ETH price per ticket
+                const userAddress = await signer.getAddress();
+                const tokenBalance = await tokenContract.balanceOf(userAddress);
+                
+                // Determine how many tickets the user can pay for with FTT:
+                const ticketsCoveredByTokens = tokenBalance.div(tokenCostPerTicket).toNumber();
+                let remainingTickets;
+                if (ticketsCoveredByTokens >= ticketCounts[answerIndex]) {
+                    remainingTickets = 0;
                 } else {
-                    // Use FTT for partial payment and ETH for the remainder
-                    const tokensToUse = tokenBalance;
-                    const remainingTickets = ticketCounts[answerIndex] - tokensToUse;
-                    const remainingCost = ticketPrice.mul(remainingTickets);
-
-                    if (tokensToUse.gt(0)) {
-                        await tokenContract.approve(contractAddress, tokensToUse);
-                    }
-
-                    const tx = await contract.buyTickets(answerIndex, ticketCounts[answerIndex], { value: remainingCost, gasLimit: 300000 });
-                    await tx.wait(); // Wait for the transaction to be mined
-                    console.log("Tickets bought successfully with FTT and ETH:", tx);
+                    remainingTickets = ticketCounts[answerIndex] - ticketsCoveredByTokens;
                 }
+                
+                // Calculate ETH required for the remaining tickets:
+                const ethRequired = ticketPrice.mul(remainingTickets);
+                
+                // Determine how many tickets will be paid with FTT:
+                const ticketsUsingFTT = Math.min(ticketCounts[answerIndex], ticketsCoveredByTokens);
+                // Calculate the total token amount (in wei) needed for these tickets:
+                const tokensToApprove = ethers.BigNumber.from(ticketsUsingFTT).mul(tokenCostPerTicket);
+                // --- End of Split-Payment Calculation ---
 
-                onBuyTickets(answerIndex, ticketCounts[answerIndex]); // Call your callback if needed
+                // Approve the contract to spend FTT (if any tokens are to be used)
+                if (tokensToApprove.gt(0)) {
+                    const approveTx = await tokenContract.approve(contractAddress, tokensToApprove);
+                    await approveTx.wait();
+                }
+                
+                // Call buyTickets with the full ticket count and the calculated ETH amount:
+                const tx = await contract.buyTickets(answerIndex, ticketCounts[answerIndex], { 
+                    value: ethRequired, 
+                    gasLimit: 300000 
+                });
+                await tx.wait();
+                console.log("Tickets bought successfully. Transaction:", tx);
+                onBuyTickets(answerIndex, ticketCounts[answerIndex]);
             } else {
                 alert("Please enter a valid ticket count.");
             }
@@ -165,15 +178,23 @@ const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress
     }
 
     return (
-        <div className="GameQuestion" style={{ textAlign: "center"}}>
-            <FontAwesomeIcon icon={faFortAwesome}
-                            style={{ 
-                                color: "#ff4d6d", 
-                                fontSize: "60px", 
-                            }}  />
+        <div className="GameQuestion" style={{ textAlign: "center" }}>
+            <FontAwesomeIcon 
+                icon={faFortAwesome}
+                style={{ 
+                    color: "#ff4d6d", 
+                    fontSize: "60px", 
+                }}  
+            />
             <h2>We are at the entrance of the dungeon, but a group of goblins is blocking the way. What should we do?</h2>
             <div>
-                {["1. Attack with the sword.", "2. Attack with a spell.", "3. Hide and wait for them to leave.", "4. Bride them.", "5. Sneak past them."].map((answer, index) => (
+                {[
+                    "1. Attack with the sword.", 
+                    "2. Attack with a spell.", 
+                    "3. Hide and wait for them to leave.", 
+                    "4. Bride them.", 
+                    "5. Sneak past them."
+                ].map((answer, index) => (
                     <div key={index} style={{ margin: "10px" }}>
                         <span>{answer}</span>
                         <input
@@ -194,6 +215,6 @@ const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress
             </div>
         </div>
     );     
-}; 
-export default GameQuestion;
+};
 
+export default GameQuestion;

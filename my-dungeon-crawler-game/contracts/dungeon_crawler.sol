@@ -93,41 +93,74 @@ contract DungeonCrawler is Ownable {
         return allTicketHoldersPerRound[roundNumber];
     }
 
-    function buyTickets(uint256 answerIndex, uint256 numTickets) public payable onlyIfQuestionSet whenNotPaused {
-        require(answerIndex < currentQuestion.options.length, "Invalid answer index.");
-        require(numTickets > 0, "Must buy at least one ticket.");
+function buyTickets(uint256 answerIndex, uint256 numTickets) 
+    public 
+    payable 
+    onlyIfQuestionSet 
+    whenNotPaused 
+{
+    require(answerIndex < currentQuestion.options.length, "Invalid answer index.");
+    require(numTickets > 0, "Must buy at least one ticket.");
 
-        uint256 tokenBalance = freeTicketToken.balanceOf(msg.sender);
+    // Define FTT cost per ticket considering 18 decimals (1 FTT = 1e18 units)
+    uint256 tokenCostPerTicket = 1 * (10 ** 18);
+    uint256 totalTokenCost = numTickets * tokenCostPerTicket;
 
-        if (tokenBalance > 0) {
-            uint256 tokensToUse = tokenBalance >= numTickets ? numTickets : tokenBalance;
-            require(freeTicketToken.transferFrom(msg.sender, address(this), tokensToUse), "Token transfer failed");
-            numTickets -= tokensToUse;
+    // Check the user's FTT balance
+    uint256 tokenBalance = freeTicketToken.balanceOf(msg.sender);
+
+    // Calculate how many tickets the user's tokens can cover.
+    // (Integer division: only full tickets count.)
+    uint256 ticketsCoveredByTokens = tokenBalance / tokenCostPerTicket;
+
+    uint256 tokensToUse = 0;
+    uint256 remainingTickets = numTickets;
+
+    // If the user has some tokens, use them for as many tickets as possible.
+    if(ticketsCoveredByTokens > 0) {
+        if(ticketsCoveredByTokens >= numTickets) {
+            // The user has enough tokens to cover all tickets.
+            tokensToUse = totalTokenCost;
+            remainingTickets = 0;
+        } else {
+            // Use tokens for as many tickets as possible.
+            tokensToUse = ticketsCoveredByTokens * tokenCostPerTicket;
+            remainingTickets = numTickets - ticketsCoveredByTokens;
         }
-
-        if (numTickets > 0) {
-            uint256 ethRequired = ticketPrice * numTickets;
-            require(msg.value == ethRequired, "Incorrect ETH value sent.");
-        }
-
-        // Initialize the user's tickets array if it doesn't exist
-        uint256[] storage userTickets = tickets[msg.sender][round];
-        if (userTickets.length == 0) {
-            tickets[msg.sender][round] = new uint256[](currentQuestion.options.length);
-        }
-
-        // Update user tickets and total tickets in a single step
-        tickets[msg.sender][round][answerIndex] += numTickets;
-        totalTicketsPerAnswer[round][answerIndex] += numTickets;
-
-        // Add participant to the list if not already present
-        if (!isParticipant[msg.sender][round]) {
-            isParticipant[msg.sender][round] = true;
-            allTicketHoldersPerRound[round].push(msg.sender);
-        }
-
-        emit TicketPurchased(msg.sender, answerIndex, numTickets);
+        // Transfer the FTT tokens from the user to this contract.
+        require(
+            freeTicketToken.transferFrom(msg.sender, address(this), tokensToUse), 
+            "Token transfer failed"
+        );
     }
+
+    // For any tickets not covered by FTT, require ETH payment.
+    // The ticketPrice remains at 0.00001 ETH per ticket.
+    if (remainingTickets > 0) {
+        uint256 ethRequired = ticketPrice * remainingTickets;
+        require(msg.value == ethRequired, "Incorrect ETH value sent.");
+    } else {
+        require(msg.value == 0, "No ETH required if tokens cover full cost");
+    }
+
+    // Update the user's tickets and total tickets accordingly.
+    // Initialize the user's tickets array if it doesn't exist.
+    uint256[] storage userTickets = tickets[msg.sender][round];
+    if (userTickets.length == 0) {
+        tickets[msg.sender][round] = new uint256[](currentQuestion.options.length);
+    }
+    tickets[msg.sender][round][answerIndex] += numTickets;
+    totalTicketsPerAnswer[round][answerIndex] += numTickets;
+
+    // Add the buyer to the participants list if not already present.
+    if (!isParticipant[msg.sender][round]) {
+        isParticipant[msg.sender][round] = true;
+        allTicketHoldersPerRound[round].push(msg.sender);
+    }
+
+    emit TicketPurchased(msg.sender, answerIndex, numTickets);
+}
+
 
     function endRound(
         uint256 _burnPercentage,
