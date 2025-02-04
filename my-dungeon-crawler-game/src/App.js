@@ -10,8 +10,8 @@ import logo from './X-Games Logo.png'; // Adjust the path if your logo is in a d
 const App = () => {
     const [tickets, setTickets] = useState([0, 0, 0, 0, 0]); // For 5 answers
     const [walletAddress, setWalletAddress] = useState(null);
-    const [tokenAddress] = useState('0xc373a69De7Bad9135559E142a551C2D516024f1E');
-    const contractAddress = '0x5A95680E3D3B372b361e2e80CE6AF99098c65311'; // Replace with your deployed contract address
+    const [tokenAddress] = useState('0x5B259A5A6F5Af7BB6ea30174Ff10F008F2dD4cAb');
+    const contractAddress = '0xA773855dfB92F0d0A53858713f46D92Be7244485'; // Replace with your deployed contract address
     const contractABI = DungeonCrawlerABI.abi;
 
     const handleWalletConnected = (address) => {
@@ -27,7 +27,7 @@ const App = () => {
     };
 
     // Set endTime to 1 hour from now
-    const endTime = '2025-01-31T23:59:59'; // Countdown End Date
+    const endTime = '2025-02-31T23:59:59'; // Countdown End Date
 
     return (
         <div className="App">

@@ -13,7 +13,7 @@ const BASE_SEPOLIA_CONFIG = {
     rpcUrls: ['https://base-sepolia.g.alchemy.com/v2/sBVMn2jVaFsG9K7sTs-85aQhKv7D8-1l'],
 };
 
-const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress }) => {
+const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress, endTime, tickets }) => {
     const [ticketCounts, setTicketCounts] = useState([0, 0, 0, 0, 0]);
     const [isQuestionSet, setIsQuestionSet] = useState(false);
     const [signer, setSigner] = useState(null);
@@ -27,12 +27,6 @@ const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress
                 try {
                     // Add network configuration to provider
                     const web3Provider = new ethers.providers.Web3Provider(window.ethereum, BASE_SEPOLIA_CONFIG);
-                    
-                    // (Optional) Remove or adjust resolveName override if not needed.
-                    // web3Provider.resolveName = async (name) => {
-                    //     if (ethers.utils.isAddress(name)) return name;
-                    //     throw new Error("ENS is not supported on this network");
-                    // };
 
                     // Check network
                     const network = await web3Provider.getNetwork();
@@ -169,6 +163,9 @@ const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress
         }
     };
 
+    // Evaluate whether the round is still active based on the passed endTime
+    const isRoundActive = new Date() < new Date(endTime);
+
     if (!isSupportedNetwork) {
         return (
             <div className="GameQuestion" style={{ textAlign: "center" }}>
@@ -200,12 +197,13 @@ const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress
                         <input
                             type="number"
                             min="1"
-                            value={ticketCounts[index]}
+                            value={ticketCounts[index]} 
                             onChange={(e) => updateTicketCount(index, e.target.value)}
                             style={{ marginLeft: "10px", width: "50px" }}
                         />
                         <button
                             onClick={() => buyTickets(index)}
+                            disabled={!isRoundActive} // disable button if time is up
                             style={{ marginLeft: "10px" }}
                         >
                             Buy Ticket

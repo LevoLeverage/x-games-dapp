@@ -5,13 +5,13 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     console.log("Ending round with the account:", deployer.address);
 
-    const contractAddress = "0x5A95680E3D3B372b361e2e80CE6AF99098c65311"; // Replace with your deployed contract address
+    const contractAddress = "0xA773855dfB92F0d0A53858713f46D92Be7244485"; // Replace with your deployed contract address
     const contractABI = require("../src/DungeonCrawler.json").abi;
     const contract = new ethers.Contract(contractAddress, contractABI, deployer);
 
     const burnPercentage = 900; // 9%
     const feePercentage = 100;  // 1%
-    const prizePercentage = 8000; // 90%
+    const prizePercentage = 8000; // 80%
     const correctAnswerIndex = 0; // Index of the correct answer (e.g., 0 for "Paris")
     const correctAnswer = "Paris"; // The correct answer string
 
