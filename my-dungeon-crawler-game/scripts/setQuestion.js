@@ -5,14 +5,19 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     console.log("Setting question with the account:", deployer.address);
 
-    const contractAddress = "0x9218Da22b1F3F4B3Def0A7cD3A954881BC67c823"; // Replace with your deployed contract address
+    const contractAddress = "0xf28759aA898a321fF2092BD1007E8468AdAF7791"; // Replace with your deployed contract address
     const contractABI = require("../src/DungeonCrawler.json").abi;
     const contract = new ethers.Contract(contractAddress, contractABI, deployer);
 
     const question = "What is the capital of France?";
     const options = ["Paris", "Rome", "Berlin", "Madrid", "Lisbon"];
+    const correctAnswer = "Paris";
 
-    const tx = await contract.setQuestion(question, options);
+    // Generate the hash of the correct answer
+    const correctAnswerHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(correctAnswer));
+
+    // Send the question, options, and correct answer hash to the contract
+    const tx = await contract.setQuestion(question, options, correctAnswerHash);
     await tx.wait();
     console.log("Question set successfully:", tx);
 }

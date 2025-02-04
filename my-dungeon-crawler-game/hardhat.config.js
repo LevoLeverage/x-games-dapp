@@ -10,8 +10,8 @@ module.exports = {
       chainId: 1337,
     },
     sepolia: {
-      url: process.env.ALCHEMY_API_KEY,
-      accounts: [`0x${process.env.PRIVATE_KEY}`],
+      url: `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts: [`${process.env.PRIVATE_KEY}`],
       chainId: 0x14a34,
     },
   },

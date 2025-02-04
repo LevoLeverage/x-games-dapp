@@ -10,7 +10,8 @@ import logo from './X-Games Logo.png'; // Adjust the path if your logo is in a d
 const App = () => {
     const [tickets, setTickets] = useState([0, 0, 0, 0, 0]); // For 5 answers
     const [walletAddress, setWalletAddress] = useState(null);
-    const contractAddress = '0x9218Da22b1F3F4B3Def0A7cD3A954881BC67c823'; // Replace with your deployed contract address
+    const [tokenAddress] = useState('0xC989E4633acb1AdC043948884B7Fdbfd8D9F56BD');
+    const contractAddress = '0xf28759aA898a321fF2092BD1007E8468AdAF7791'; // Replace with your deployed contract address
     const contractABI = DungeonCrawlerABI.abi;
 
     const handleWalletConnected = (address) => {
@@ -40,10 +41,11 @@ const App = () => {
                     onBuyTickets={handleBuyTickets}
                     contractAddress={contractAddress}
                     contractABI={contractABI}
+                    tokenAddress={tokenAddress} // Ensure tokenAddress is passed here
                     endTime={endTime}
                     tickets={tickets}
                 />
-                <TicketCounter tickets={tickets} contractAddress={contractAddress} contractABI={contractABI} walletAddress={walletAddress} />
+                 <TicketCounter tickets={tickets} contractAddress={contractAddress} contractABI={contractABI} walletAddress={walletAddress} />
             </div>
         </div>
     );
