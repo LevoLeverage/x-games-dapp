@@ -11,8 +11,13 @@ module.exports = {
     },
     sepolia: {
       url: `https://base-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
-      accounts: [`${process.env.PRIVATE_KEY}`],
+      accounts: [process.env.PRIVATE_KEY],
       chainId: 0x14a34,
+    },
+    baseMainnet: {
+      url: `https://base-mainnet.infura.io/v3/${process.env.ALCHEMY_BASE_MAINNET_API_KEY}`,
+      accounts: [process.env.PRIVATE_KEY],
+      chainId: 0x2105, // 8453 in hexadecimal
     },
   },
   paths: {

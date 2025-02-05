@@ -2,7 +2,7 @@ require("dotenv").config();
 const { ethers } = require("hardhat");
 
 async function main() {
-    const contractAddress = "0xA773855dfB92F0d0A53858713f46D92Be7244485"; // Replace with your contract address
+    const contractAddress = "0x9747963559154b70926a15EeA11d0cBBAf6F00b8"; // Replace with your contract address
     const [deployer] = await ethers.getSigners(); // Get the first signer
 
     const contractABI = require("../artifacts/contracts/dungeon_crawler.sol/DungeonCrawler.json").abi;

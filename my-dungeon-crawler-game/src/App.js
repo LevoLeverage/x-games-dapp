@@ -10,23 +10,25 @@ import logo from './X-Games Logo.png'; // Adjust the path if your logo is in a d
 const App = () => {
     const [tickets, setTickets] = useState([0, 0, 0, 0, 0]); // For 5 answers
     const [walletAddress, setWalletAddress] = useState(null);
-    const [tokenAddress] = useState('0x5B259A5A6F5Af7BB6ea30174Ff10F008F2dD4cAb');
-    const contractAddress = '0xA773855dfB92F0d0A53858713f46D92Be7244485'; // Replace with your deployed contract address
+    const [tokenAddress] = useState('0x1121Db68aca8655BB7BeeE9F221e7FcFbEd4cF79');
+    const contractAddress = '0x9eaF85Aba7296520f0604d1CA7305cC0F1C0d212'; // Replace with your deployed contract address
     const contractABI = DungeonCrawlerABI.abi;
+    const [refreshTicketCounter, setRefreshTicketCounter] = useState(0);
 
     const handleWalletConnected = (address) => {
         console.log("Wallet connected:", address);
         setWalletAddress(address);
+        setRefreshTicketCounter(prev => prev + 1);
     };
 
     const handleBuyTickets = (answerIndex, count) => {
         const newTickets = [...tickets];
         newTickets[answerIndex] += count;
         setTickets(newTickets);
+        setRefreshTicketCounter(prev => prev + 1);
         alert(`You bought ${count} tickets for answer ${answerIndex + 1}`);
     };
 
-    // Set endTime to 1 hour from now
     const endTime = '2025-02-31T23:59:59'; // Countdown End Date
 
     return (
@@ -45,12 +47,16 @@ const App = () => {
                     endTime={endTime}
                     tickets={tickets}
                 />
-                <TicketCounter tickets={tickets} contractAddress={contractAddress} contractABI={contractABI} walletAddress={walletAddress} />
+                <TicketCounter
+                    tickets={tickets}
+                    refreshTicketCounter={refreshTicketCounter}
+                    contractAddress={contractAddress}
+                    contractABI={contractABI}
+                    walletAddress={walletAddress}
+                />
             </div>
         </div>
     );
 };
 
 export default App;
-
-//                 <TicketCounter tickets={tickets} contractAddress={contractAddress} contractABI={contractABI} walletAddress={walletAddress} />

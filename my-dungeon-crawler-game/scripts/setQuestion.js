@@ -5,7 +5,7 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     console.log("Setting question with the account:", deployer.address);
 
-    const contractAddress = "0xA773855dfB92F0d0A53858713f46D92Be7244485"; // Replace with your deployed contract address
+    const contractAddress = "0x9eaF85Aba7296520f0604d1CA7305cC0F1C0d212"; // Replace with your deployed contract address
     const contractABI = require("../src/DungeonCrawler.json").abi;
     const contract = new ethers.Contract(contractAddress, contractABI, deployer);
 
@@ -16,8 +16,12 @@ async function main() {
     // Generate the hash of the correct answer
     const correctAnswerHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(correctAnswer));
 
-    // Send the question, options, and correct answer hash to the contract
-    const tx = await contract.setQuestion(question, options, correctAnswerHash);
+    // Get the current nonce of the deployer
+    const nonce = await deployer.getTransactionCount("latest");
+    console.log("Using nonce:", nonce);
+
+    // Send the question, options, and correct answer hash to the contract with nonce override
+    const tx = await contract.setQuestion(question, options, correctAnswerHash, { nonce });
     await tx.wait();
     console.log("Question set successfully:", tx);
 }

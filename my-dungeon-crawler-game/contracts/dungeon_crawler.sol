@@ -24,11 +24,11 @@ contract DungeonCrawler is Ownable {
 
     bool public isPaused = false; // State variable to track if the round is paused
 
-    IERC20 public freeTicketToken; // ERC20 token used as free ticket currency
+    IERC20 public freeXTicket; // ERC20 token used as free ticket currency
     // New state variables to store token metadata
 
     // New event to signal FTT info was updated.
-    event FreeTicketTokenUpdated(address newAddress);
+    event FreeXTicketUpdated(address newAddress);
 
     mapping(address => mapping(uint256 => uint256[])) public tickets; // user => round => tickets per answer
     mapping(uint256 => uint256[]) public totalTicketsPerAnswer; // round => tickets per answer
@@ -43,8 +43,8 @@ contract DungeonCrawler is Ownable {
     event RoundResumed();
 
     // Update constructor to also initialize the token metadata if desired
-    constructor(address _freeTicketToken) Ownable(msg.sender) {
-        freeTicketToken = IERC20(_freeTicketToken);
+    constructor(address _freeXTicket) Ownable(msg.sender) {
+        freeXTicket = IERC20(_freeXTicket);
         // Default values
         burnPercentage = 900; // 9%
         feePercentage = 100;  // 1%
@@ -87,12 +87,14 @@ contract DungeonCrawler is Ownable {
     } 
 
     function getTicketCount(address user, uint256 answerIndex) public view returns (uint256) {
-    uint256[] memory userTickets = tickets[user][round];
-    if (userTickets.length == 0) {
-        return 0;
+        uint256[] memory userTickets = tickets[user][round];
+        // Return 0 if no tickets have been purchased or if the answerIndex is out of bounds.
+        if (userTickets.length == 0 || answerIndex >= userTickets.length) {
+            return 0;
+        }
+        return userTickets[answerIndex];
     }
-    return userTickets[answerIndex];
-}
+
 
 
     function getTotalTicketsPerAnswer(uint256 roundNumber, uint256 answerIndex) public view returns (uint256) {
@@ -117,7 +119,7 @@ contract DungeonCrawler is Ownable {
             uint256 totalTokenCost = numTickets * tokenCostPerTicket;
 
             // Check the user's FTT balance
-            uint256 tokenBalance = freeTicketToken.balanceOf(msg.sender);
+            uint256 tokenBalance = freeXTicket.balanceOf(msg.sender);
 
             // Calculate how many tickets the user's tokens can cover.
             // (Integer division: only full tickets count.)
@@ -139,7 +141,7 @@ contract DungeonCrawler is Ownable {
                 }
                 // Transfer the FTT tokens from the user to this contract.
                 require(
-                    freeTicketToken.transferFrom(msg.sender, address(this), tokensToUse), 
+                    freeXTicket.transferFrom(msg.sender, address(this), tokensToUse), 
                     "Token transfer failed"
                 );
             }
@@ -251,7 +253,37 @@ contract DungeonCrawler is Ownable {
 
     // New function to update the FTT contract information
     function updateFTTInfo(address newTokenAddress) public onlyOwner {
-        freeTicketToken = IERC20(newTokenAddress);
-        emit FreeTicketTokenUpdated(newTokenAddress);
+        freeXTicket = IERC20(newTokenAddress);
+        emit FreeXTicketUpdated(newTokenAddress);
     }
+
+    function withdraw(address tokenAddress, address payable recipient, uint256 amount) public onlyOwner {
+        if (tokenAddress == address(0)) {
+            // Withdraw ETH
+            require(address(this).balance >= amount, "Insufficient ETH balance");
+            (bool sent, ) = recipient.call{value: amount}("");
+            require(sent, "Failed to send ETH");
+        } else {
+            // Withdraw ERC20 tokens
+            IERC20 token = IERC20(tokenAddress);
+            require(token.balanceOf(address(this)) >= amount, "Insufficient token balance");
+            require(token.transfer(recipient, amount), "Token transfer failed");
+        }
+    }
+
+    // Returns the full tickets array for the current round for a given user.
+    function debugUserTickets(address user) public view returns (uint256[] memory) {
+        return tickets[user][round];
+    }
+
+    // Returns the number of options for the current question.
+    function getNumOptions() public view returns (uint256) {
+        return currentQuestion.options.length;
+    }
+
+    // Returns the current round number.
+    function getCurrentRound() public view returns (uint256) {
+        return round;
+    }
+
 }

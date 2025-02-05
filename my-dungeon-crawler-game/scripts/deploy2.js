@@ -5,15 +5,15 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     console.log("Deploying contracts with the account:", deployer.address);
 
-    // Deploy FreeTicketToken contract first
-    const FreeTicketToken = await ethers.getContractFactory("FreeTicketToken");
-    const freeTicketToken = await FreeTicketToken.deploy();
-    await freeTicketToken.deployed();
-    console.log("FreeTicketToken deployed to:", freeTicketToken.address);
+    // Deploy FreeXTicket contract first
+    const FreeXTicket = await ethers.getContractFactory("FreeXTicket");
+    const freeXTicket = await FreeXTicket.deploy();
+    await freeXTicket.deployed();
+    console.log("FreeXTicket deployed to:", freeXTicket.address);
 
-    // Deploy DungeonCrawler contract with the address of the FreeTicketToken contract
+    // Deploy DungeonCrawler contract with the address of the FreeXTicket contract
     const DungeonCrawler = await ethers.getContractFactory("DungeonCrawler");
-    const dungeonCrawler = await DungeonCrawler.deploy(freeTicketToken.address);
+    const dungeonCrawler = await DungeonCrawler.deploy(freeXTicket.address);
     await dungeonCrawler.deployed();
     console.log("DungeonCrawler deployed to:", dungeonCrawler.address);
 }

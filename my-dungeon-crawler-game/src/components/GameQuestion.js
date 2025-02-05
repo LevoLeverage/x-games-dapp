@@ -3,14 +3,14 @@ import { ethers } from "ethers";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFortAwesome } from '@fortawesome/free-brands-svg-icons';
 
-const SUPPORTED_CHAIN_ID = 84532; // Ethereum mainnet chain ID
+const SUPPORTED_CHAIN_ID = 8453; // Ethereum mainnet chain ID
 
 // Add network configuration for Base Sepolia
 const BASE_SEPOLIA_CONFIG = {
     chainId: SUPPORTED_CHAIN_ID,
-    name: 'base-sepolia',
-    ensAddress: null, // Explicitly disable ENS
-    rpcUrls: ['https://base-sepolia.g.alchemy.com/v2/sBVMn2jVaFsG9K7sTs-85aQhKv7D8-1l'],
+    name: 'base-mainnet',
+    //ensAddress: null, // Explicitly disable ENS
+    rpcUrls: ['https://base-mainnet.infura.io/v3/407ea06009d24d2ba05fa9d2f0f2cf03'],
 };
 
 const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress, endTime, tickets }) => {
@@ -34,7 +34,7 @@ const GameQuestion = ({ onBuyTickets, contractAddress, contractABI, tokenAddress
 
                     if (network.chainId !== SUPPORTED_CHAIN_ID) {
                         setIsSupportedNetwork(false);
-                        console.error("Please switch to Base Sepolia");
+                        console.error("Please switch to Base Mainnet");
                         return;
                     }
 
