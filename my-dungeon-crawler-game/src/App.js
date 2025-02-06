@@ -4,14 +4,16 @@ import GameQuestion from './components/GameQuestion';
 import DungeonCrawlerABI from './DungeonCrawler.json';
 import CountdownTimer from './components/CountdownTimer';
 import TicketCounter from './components/TicketCounter';
-import './App2.css'; // Ensure you import the CSS file
-import logo from './X-Games Logo.png'; // Adjust the path if your logo is in a different location
+import './App2.css';
+import logo from './X-Games Logo.png';
 
 const App = () => {
     const [tickets, setTickets] = useState([0, 0, 0, 0, 0]); // For 5 answers
     const [walletAddress, setWalletAddress] = useState(null);
-    const [tokenAddress] = useState('0x1121Db68aca8655BB7BeeE9F221e7FcFbEd4cF79');
-    const contractAddress = '0x9eaF85Aba7296520f0604d1CA7305cC0F1C0d212'; // Replace with your deployed contract address
+    // Define two separate addresses:
+    const [freeTokenAddress] = useState('0x1121Db68aca8655BB7BeeE9F221e7FcFbEd4cF79');
+    const [ticketTokenAddress] = useState('0x6B30e4e6B9d1D2d2c27Dd1E1DBDD4570b6D47849'); // Replace with your paid token address
+    const contractAddress = '0x318Ec69c4D76F7924e5770002dF5EDe1e6fBD795'; // Your deployed contract address
     const contractABI = DungeonCrawlerABI.abi;
     const [refreshTicketCounter, setRefreshTicketCounter] = useState(0);
 
@@ -43,7 +45,8 @@ const App = () => {
                     onBuyTickets={handleBuyTickets}
                     contractAddress={contractAddress}
                     contractABI={contractABI}
-                    tokenAddress={tokenAddress} // Ensure tokenAddress is passed here
+                    freeTokenAddress={freeTokenAddress}        // for free tickets
+                    ticketTokenAddress={ticketTokenAddress}      // for paid tickets
                     endTime={endTime}
                     tickets={tickets}
                 />
@@ -51,6 +54,7 @@ const App = () => {
                     tickets={tickets}
                     refreshTicketCounter={refreshTicketCounter}
                     contractAddress={contractAddress}
+                    ticketTokenAddress={ticketTokenAddress}      // for paid tickets
                     contractABI={contractABI}
                     walletAddress={walletAddress}
                 />
