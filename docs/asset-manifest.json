@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/x-games-dapp/static/css/main.fb27674b.css",
-    "main.js": "/x-games-dapp/static/js/main.0e4e493b.js",
-    "static/js/488.7ad6501f.chunk.js": "/x-games-dapp/static/js/488.7ad6501f.chunk.js",
-    "static/media/X-Games Logo.png": "/x-games-dapp/static/media/X-Games Logo.6a0eb71feed3a2a0cda2.png",
-    "static/media/bg3.png": "/x-games-dapp/static/media/bg3.ffcc51e674efa342baa2.png",
-    "index.html": "/x-games-dapp/index.html",
-    "main.fb27674b.css.map": "/x-games-dapp/static/css/main.fb27674b.css.map",
-    "main.0e4e493b.js.map": "/x-games-dapp/static/js/main.0e4e493b.js.map",
-    "488.7ad6501f.chunk.js.map": "/x-games-dapp/static/js/488.7ad6501f.chunk.js.map"
+    "main.css": "/static/css/main.eb14da78.css",
+    "main.js": "/static/js/main.628b28aa.js",
+    "static/js/488.7ad6501f.chunk.js": "/static/js/488.7ad6501f.chunk.js",
+    "static/media/X-Games Logo.png": "/static/media/X-Games Logo.6a0eb71feed3a2a0cda2.png",
+    "static/media/bg3.png": "/static/media/bg3.ffcc51e674efa342baa2.png",
+    "index.html": "/index.html",
+    "main.eb14da78.css.map": "/static/css/main.eb14da78.css.map",
+    "main.628b28aa.js.map": "/static/js/main.628b28aa.js.map",
+    "488.7ad6501f.chunk.js.map": "/static/js/488.7ad6501f.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.fb27674b.css",
-    "static/js/main.0e4e493b.js"
+    "static/css/main.eb14da78.css",
+    "static/js/main.628b28aa.js"
   ]
 }
