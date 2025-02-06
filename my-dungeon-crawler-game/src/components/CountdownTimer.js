@@ -50,9 +50,10 @@ const CountdownTimer = ({ endTime }) => {
             <p className="spacing-ct"></p> {/* Empty paragraph for spacing */}
             <h3> <FontAwesomeIcon icon={faFileSignature} /> Rules:</h3>
             <p>1. You can buy multiple tickets.</p>
-            <p>2. Each ticket costs 0.00001 ETH.</p>
-            <p>3. The answer with the most tickets wins.</p>
+            <p>2. Each ticket costs 10.000 $XGAME.</p>
+            <p>3. The winning answer will be reveald after the Timer ends.</p>
             <p>4. Rewards will be distributed to the winners automatically.</p>
+            <p>5. $FXT (FreeXTicket) will be used first, if available (1 $FXT = 1 Ticket).</p>
         </div>
     );
 };

@@ -10,8 +10,8 @@
   
   /* Neon headers */
   h1, h2, h3 {
-    color: #ff4d6d;
-    text-shadow: 0 0 8px #ff4d6d, 0 0 16px #ff4d6d;
+    color: #FFC53F;
+    text-shadow: 0 0 8px #ffbc20, 0 0 16px #ffc02d;
   }
   
   /* Glowing buttons */
@@ -82,6 +82,7 @@
 
   .CountdownTimer h3 {
     color: #E6A100;
+    text-shadow: 0 0 8px #ff4d6d, 0 0 16px #ff4d6d;
   }
 
   .CountdownTimer span {
@@ -98,7 +99,7 @@
   /* GameQuestion component */
   .GameQuestion {
     background: #000000b3;
-    border: 2px solid #ff4d6d;
+    border: 2px solid #FFC53F;
     padding: 15px 40px 20px 40px;
     border-radius: 10px;
     margin: 10px;
@@ -116,7 +117,7 @@
   }
 
   .GameQuestion div {
-    color: #00ffff;
+    color: #dedede;
   }
   
   .GameQuestion input {
@@ -158,6 +159,8 @@
   .TicketCounter h3 {
     text-align: center;
     color: #E6A100;
+    text-shadow: 0 0 8px #ff4d6d, 0 0 16px #ff4d6d;
+
   }
 
   .TicketCounter p {
@@ -188,12 +191,21 @@ body {
     font-family: 'Orbitron', sans-serif;
     margin: 0;
     padding: 0;
-    background: 
-        radial-gradient(circle at 50% 20%, rgba(255, 77, 109, 0.8), transparent 70%), /* Bright pink at the top */
-        radial-gradient(circle at 50% 50%, #00ffff80, transparent 80%), /* Cyan glow in the middle */
-        linear-gradient(to bottom, #431b59b3, rgba(44, 30, 67, 0.9), #1e1e2f); /* Dark at the bottom */
     background-size: 100% 100%; /* Full viewport */
     color: #fff; /* Keep text white for contrast */
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("./bg3.png") no-repeat center center;
+  background-size: cover;
+  filter: blur(15px);
+  z-index: -1;
 }
 
 .header-container .App-logo {
