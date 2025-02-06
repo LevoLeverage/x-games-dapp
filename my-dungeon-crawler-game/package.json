@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
 
-  "homepage": "https://levoleverage.github.io/x-games-dapp/",
+  "homepage": "https://app.x-games.io/",
 
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
