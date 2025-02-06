@@ -19,39 +19,44 @@ contract DungeonCrawler is Ownable {
     uint256 public feePercentage;
     uint256 public prizePercentage;
 
-    bytes32 private correctAnswerHash; // Hash of the correct answer
-    uint256 private correctAnswerIndex; // Correct answer index (revealed at the end of the round)
+    bytes32 private correctAnswerHash;
+    uint256 private correctAnswerIndex;
 
-    bool public isPaused = false; // State variable to track if the round is paused
+    bool public isPaused = false;
 
-    IERC20 public freeXTicket; // ERC20 token used as free ticket currency
-    IERC20 public ticketToken; // ERC20 token used as the paid ticket currency
-    // New state variables to store token metadata
+    IERC20 public freeXTicket;   // Free ticket token (FXT)
+    IERC20 public ticketToken;   // Paid ticket token (TTT)
 
-    // New event to signal FTT info was updated.
     event FreeXTicketUpdated(address newAddress);
-
-    mapping(address => mapping(uint256 => uint256[])) public tickets; // user => round => tickets per answer
-    mapping(uint256 => uint256[]) public totalTicketsPerAnswer; // round => tickets per answer
-    mapping(uint256 => address[]) public allTicketHoldersPerRound; // round => list of users who purchased tickets
-    mapping(address => mapping(uint256 => bool)) private isParticipant; // user => round => is participant
-
-    event QuestionSet(string text, string[] options);
     event TicketPurchased(address indexed buyer, uint256 answerIndex, uint256 numTickets);
     event RoundEnded(uint256 winningOption);
     event FundsDistributed(uint256 burned, uint256 ownerFees, uint256 prizePool);
     event RoundPaused();
     event RoundResumed();
     event TicketTokenUpdated(address newTicketToken);
+    event DistributionBatchProcessed(uint256 startIndex, uint256 endIndex, uint256 round);
 
-    // Update constructor to also initialize the token metadata if desired
+    // New state variables for batch distribution:
+    bool public roundEnded;              // Indicates if distribution is pending for the round
+    uint256 public distributionIndex;    // Index pointer for batch processing
+    uint256 public pendingWinningTickets;  // Sum of winning tickets for the round
+    uint256 public pendingTotalPrizeAmount;  // Total prize amount to be distributed (in TTT)
+    uint256 public pendingCorrectAnswerIndex; // Winning answer index for distribution
+
+    mapping(address => mapping(uint256 => uint256[])) public tickets;
+    mapping(uint256 => uint256[]) public totalTicketsPerAnswer;
+    mapping(uint256 => address[]) public allTicketHoldersPerRound;
+    mapping(address => mapping(uint256 => bool)) private isParticipant;
+
+    event QuestionSet(string text, string[] options);
+
+    // Constructor accepts both token addresses.
     constructor(address _freeXTicket, address _ticketToken) Ownable(msg.sender) {
         freeXTicket = IERC20(_freeXTicket);
         ticketToken = IERC20(_ticketToken);
-        // Default values
-        burnPercentage = 900; // 9%
-        feePercentage = 100;  // 1%
-        prizePercentage = 9000; // 90%
+        burnPercentage = 900;
+        feePercentage = 100;
+        prizePercentage = 9000;
     }
 
     function updateTicketToken(address newTicketToken) public onlyOwner {
@@ -65,10 +70,7 @@ contract DungeonCrawler is Ownable {
     }
 
     modifier validPercentages(uint256 _burnPercentage, uint256 _feePercentage, uint256 _prizePercentage) {
-        require(
-            _burnPercentage + _feePercentage + _prizePercentage <= 10000,
-            "Percentages must not exceed 100%."
-        );
+        require(_burnPercentage + _feePercentage + _prizePercentage <= 10000, "Percentages must not exceed 100%.");
         _;
     }
 
@@ -85,7 +87,6 @@ contract DungeonCrawler is Ownable {
         delete totalTicketsPerAnswer[round];
         totalTicketsPerAnswer[round] = new uint256[](_options.length);
 
-        // Reset participants for the new round
         for (uint256 i = 0; i < allTicketHoldersPerRound[round].length; i++) {
             isParticipant[allTicketHoldersPerRound[round][i]][round] = false;
         }
@@ -96,14 +97,11 @@ contract DungeonCrawler is Ownable {
 
     function getTicketCount(address user, uint256 answerIndex) public view returns (uint256) {
         uint256[] memory userTickets = tickets[user][round];
-        // Return 0 if no tickets have been purchased or if the answerIndex is out of bounds.
         if (userTickets.length == 0 || answerIndex >= userTickets.length) {
             return 0;
         }
         return userTickets[answerIndex];
     }
-
-
 
     function getTotalTicketsPerAnswer(uint256 roundNumber, uint256 answerIndex) public view returns (uint256) {
         return totalTicketsPerAnswer[roundNumber][answerIndex];
@@ -117,11 +115,9 @@ contract DungeonCrawler is Ownable {
         require(answerIndex < currentQuestion.options.length, "Invalid answer index.");
         require(numTickets > 0, "Must buy at least one ticket.");
 
-        // Define cost per ticket in free token units.
-        uint256 tokenCostPerTicket = 1 * (10 ** 18); // 1 freeXTicket covers 1 ticket
+        uint256 tokenCostPerTicket = 1 * (10 ** 18); // 1 FXT per ticket
         uint256 totalCost = numTickets * tokenCostPerTicket;
 
-        // Check user's freeXTicket balance.
         uint256 freeBalance = freeXTicket.balanceOf(msg.sender);
         uint256 ticketsCoveredByFree = freeBalance / tokenCostPerTicket;
 
@@ -138,14 +134,12 @@ contract DungeonCrawler is Ownable {
             require(freeXTicket.transferFrom(msg.sender, address(this), freeTokensToUse), "Free token transfer failed");
         }
 
-        // For any tickets not covered by free tokens, require payment with ticketToken.
         if (remainingTickets > 0) {
             // ticketPrice is defined in ticketToken units.
             uint256 paidCost = ticketPrice * remainingTickets;
             require(ticketToken.transferFrom(msg.sender, address(this), paidCost), "Ticket token transfer failed");
         }
 
-        // Update the ticket records.
         uint256[] storage userTickets = tickets[msg.sender][round];
         if (userTickets.length == 0) {
             tickets[msg.sender][round] = new uint256[](currentQuestion.options.length);
@@ -153,7 +147,6 @@ contract DungeonCrawler is Ownable {
         tickets[msg.sender][round][answerIndex] += numTickets;
         totalTicketsPerAnswer[round][answerIndex] += numTickets;
 
-        // Add buyer to participants list if not already added.
         if (!isParticipant[msg.sender][round]) {
             isParticipant[msg.sender][round] = true;
             allTicketHoldersPerRound[round].push(msg.sender);
@@ -161,15 +154,15 @@ contract DungeonCrawler is Ownable {
 
         emit TicketPurchased(msg.sender, answerIndex, numTickets);
     }
-    
+
+    // Modified endRound that calculates distribution amounts but doesn't loop over all winners.
     function endRound(
         uint256 _burnPercentage,
         uint256 _feePercentage,
         uint256 _prizePercentage,
         uint256 _correctAnswerIndex,
         string memory _correctAnswer
-    ) 
-    public onlyOwner validPercentages(_burnPercentage, _feePercentage, _prizePercentage) {
+    ) public onlyOwner validPercentages(_burnPercentage, _feePercentage, _prizePercentage) {
         require(currentQuestion.isSet, "No question set to end the round.");
         require(keccak256(abi.encodePacked(_correctAnswer)) == correctAnswerHash, "Incorrect answer revealed.");
 
@@ -178,34 +171,54 @@ contract DungeonCrawler is Ownable {
         prizePercentage = _prizePercentage;
         correctAnswerIndex = _correctAnswerIndex;
 
+        // Use ticketToken balance as the prize pool.
         uint256 prizePool = ticketToken.balanceOf(address(this));
-        uint256 burnAmount = (prizePool * burnPercentage) / 10000;
-        uint256 feeAmount = (prizePool * feePercentage) / 10000;
-        uint256 totalPrizeAmount = (prizePool * prizePercentage) / 10000;
+        uint256 burnAmt = (prizePool * burnPercentage) / 10000;
+        uint256 feeAmt = (prizePool * feePercentage) / 10000;
+        uint256 totalPrizeAmt = (prizePool * prizePercentage) / 10000;
 
-        // Burn TTT tokens by transferring them to the zero address.
-        require(ticketToken.transfer(0x000000000000000000000000000000000000dEaD, burnAmount), "Token burn failed");
+        // Execute burn and fee transfers.
+        require(ticketToken.transfer(0x000000000000000000000000000000000000dEaD, burnAmt), "Token burn failed");
+        require(ticketToken.transfer(owner(), feeAmt), "Token fee transfer failed");
 
-        // Transfer fees to the owner.
-        require(ticketToken.transfer(owner(), feeAmount), "Token fee transfer failed");
+        // Save distribution data for batch processing.
+        pendingTotalPrizeAmount = totalPrizeAmt;
+        pendingCorrectAnswerIndex = _correctAnswerIndex;
+        pendingWinningTickets = totalTicketsPerAnswer[round][_correctAnswerIndex];
+        roundEnded = true;
+        distributionIndex = 0;
 
-        // Distribute prize pool proportionally to winners
-        uint256 totalWinningTickets = totalTicketsPerAnswer[round][correctAnswerIndex];
-        for (uint256 i = 0; i < allTicketHoldersPerRound[round].length; i++) {
+        emit RoundEnded(_correctAnswerIndex);
+    }
+
+    // New function for batch processing the reward distribution.
+    function distributePrizesBatch(uint256 batchSize) public onlyOwner {
+        require(roundEnded, "Round not ended or already distributed");
+        uint256 totalWinners = allTicketHoldersPerRound[round].length;
+        require(batchSize > 0 && distributionIndex < totalWinners, "Invalid batch size or distribution complete");
+
+        uint256 endIndex = distributionIndex + batchSize;
+        if (endIndex > totalWinners) {
+            endIndex = totalWinners;
+        }
+
+        for (uint256 i = distributionIndex; i < endIndex; i++) {
             address user = allTicketHoldersPerRound[round][i];
-            uint256 userTickets = tickets[user][round][correctAnswerIndex];
-            if (userTickets > 0) {
-                uint256 userShare = (totalPrizeAmount * userTickets) / totalWinningTickets;
+            uint256 userTickets = tickets[user][round][pendingCorrectAnswerIndex];
+            if (userTickets > 0 && pendingWinningTickets > 0) {
+                uint256 userShare = (pendingTotalPrizeAmount * userTickets) / pendingWinningTickets;
                 require(ticketToken.transfer(user, userShare), "Token prize transfer failed");
             }
         }
-
-        emit FundsDistributed(burnAmount, feeAmount, totalPrizeAmount);
-        emit RoundEnded(correctAnswerIndex);
-
-        // Reset the question
-        currentQuestion.isSet = false;
-        round++;
+        emit DistributionBatchProcessed(distributionIndex, endIndex, round);
+        distributionIndex = endIndex;
+        // If all winners have been processed, mark distribution as complete.
+        if (distributionIndex >= totalWinners) {
+            roundEnded = false;
+            // Optionally, reset currentQuestion.isSet to false or perform other cleanup.
+            currentQuestion.isSet = false;
+            round++; // Advance to next round.
+        }
     }
 
     function setTicketPrice(uint256 _ticketPrice) public onlyOwner {
@@ -221,14 +234,11 @@ contract DungeonCrawler is Ownable {
         isPaused = false;
         emit RoundResumed();
     }
+    
     function getTotalRounds() public view returns (uint256) {
-        // The current round number equals the number of completed rounds (starting from 0)
         return round;
     }
 
-    // Returns for a specific round:
-    // - an array with all wallet addresses (participants)
-    // - an array of arrays containing each wallet's ticket counts (one array per wallet) per answer option
     function getRoundParticipants(uint256 roundNumber) public view returns (address[] memory participants, uint256[][] memory ticketsPerParticipant) {
         participants = allTicketHoldersPerRound[roundNumber];
         uint256 length = participants.length;
@@ -238,7 +248,6 @@ contract DungeonCrawler is Ownable {
         }
     }
 
-    // New function to update the FTT contract information
     function updateFTTInfo(address newTokenAddress) public onlyOwner {
         freeXTicket = IERC20(newTokenAddress);
         emit FreeXTicketUpdated(newTokenAddress);
@@ -246,31 +255,25 @@ contract DungeonCrawler is Ownable {
 
     function withdraw(address tokenAddress, address payable recipient, uint256 amount) public onlyOwner {
         if (tokenAddress == address(0)) {
-            // Withdraw ETH
             require(address(this).balance >= amount, "Insufficient ETH balance");
             (bool sent, ) = recipient.call{value: amount}("");
             require(sent, "Failed to send ETH");
         } else {
-            // Withdraw ERC20 tokens
             IERC20 token = IERC20(tokenAddress);
             require(token.balanceOf(address(this)) >= amount, "Insufficient token balance");
             require(token.transfer(recipient, amount), "Token transfer failed");
         }
     }
 
-    // Returns the full tickets array for the current round for a given user.
     function debugUserTickets(address user) public view returns (uint256[] memory) {
         return tickets[user][round];
     }
 
-    // Returns the number of options for the current question.
     function getNumOptions() public view returns (uint256) {
         return currentQuestion.options.length;
     }
 
-    // Returns the current round number.
     function getCurrentRound() public view returns (uint256) {
         return round;
     }
-
 }
